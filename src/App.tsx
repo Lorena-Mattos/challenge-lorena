@@ -1,12 +1,55 @@
+import React, { useEffect, useState } from 'react';
 import './styles/global.css';
 
 import './styles/app.css';
+import axios from 'axios';
+
+interface LatLongObject {
+  lat: string;
+  long: string;
+}
 
 function App() {
+  const [latLongObj, setLatLongObj] = useState<LatLongObject>();
+  
+  function showPosition(position: any){
+    let lat = position.coords.latitude;
+    let long = position.coords.longitude;
+    transformLatLongInLocale(lat, long);
+    setLatLongObj({lat,long})
+  }
+
+  function getLocation() {
+    if (navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(showPosition);
+    } else{
+      alert("O seu navegador não suporta Geolocalização.");
+    }
+  }
+
+  function transformLatLongInLocale(lat: string, long:string) {
+    // https://api.opencagedata.com/geocode/v1/json?q=lat%2C+long&key=YOUR-API-KEY&pretty=1
+    // const url = `https://api.opencagedata.com/geocode/v1/json?q=${lat}%2C+${long}&key=c63386b4f77e46de817bdf94f552cddf&language=en`
+    const urlWeather = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${long}&exclude=current&appid=2e351511a82a8fd0eba008629abb3bdd`
+
+    axios.get(urlWeather)
+    .then(response => {
+      console.log(response)
+    })
+    .catch(err => {
+      console.log(err)
+    })
+  }
+
+  useEffect(() => {
+    getLocation();
+  },[])
+
+
   return (
     <div className="container-fluid p-0 container-sm d-flex justify-content-center">
 
-      <div className="card text-center shadow-lg" style={{ width: "26rem;" }}>
+      <div className="card text-center shadow-lg" style={{ width: "26rem" }}>
   
         <div className="card-header bg-white text-dark font-weight-bold">
           TEMPO E TEMPERATURA
